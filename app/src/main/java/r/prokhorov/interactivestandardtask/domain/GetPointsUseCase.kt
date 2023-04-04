@@ -1,19 +1,24 @@
 package r.prokhorov.interactivestandardtask.domain
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import r.prokhorov.interactivestandardtask.domain.common.Result
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class GetPointsUseCase(val repository: PointsRepository) {
-    operator fun invoke(count: Int): Flow<Result<List<Point>>> = flow {
+class GetPointsUseCase @Inject constructor(val repository: PointsRepository) {
+    operator fun invoke(count: Int) = flow {
         try {
-            emit(Result.Loading)
-            val points = repository.getPoints(count).sortedBy(Point::x)
+            // why this - see getPoints() impl
+            val points = withContext(Dispatchers.IO) {
+                repository.getPoints(count).sortedBy(Point::x) // not so many elements(upt to 1000), actually
+            }
             emit(Result.Success(points))
         } catch (e: HttpException) {
-            emit(Result.Failure(e.localizedMessage ?: "Http error code: ${e.code()}"))
+            val reason = e.response()?.errorBody()?.string() ?: "Http error code: ${e.code()}"
+            emit(Result.Failure(reason))
         } catch (e: IOException) {
             emit(Result.Failure("Connection problem"))
         }
