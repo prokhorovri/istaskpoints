@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">InteractiveStandardTask</string>
+
+    <string name="fetch_button">Поехали</string>
+    <string name="fetch_information_text">Введи в поля для воода ниже число запрашиваемых точек и нажмите \"Поехали\". Если точки придут, то откроется новый экран с графиком, если нет, то будет ошибка.</string>
+    <string name="fetch_input_hint">Введите число точек</string>
 </resources>
