@@ -1,5 +1,6 @@
 package r.prokhorov.interactivestandardtask.presentation.main
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.text.isDigitsOnly
@@ -9,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import r.prokhorov.interactivestandardtask.domain.GetPointsUseCase
+import r.prokhorov.interactivestandardtask.domain.FetchPointsUseCase
 import r.prokhorov.interactivestandardtask.domain.common.Result
 import javax.inject.Inject
 
@@ -17,7 +18,7 @@ private const val INPUT_STATE_KEY = "input_state"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getPointsUseCase: GetPointsUseCase,
+    private val fetchPointsUseCase: FetchPointsUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -42,12 +43,14 @@ class MainViewModel @Inject constructor(
             val count = input.toIntOrNull() ?: 0
 
             _state.value = MainScreenState(isLoading = true)
-            getPointsUseCase(count).onEach { result ->
+            fetchPointsUseCase(count).onEach { result ->
                 when (result) {
                     is Result.Success -> {
                         _state.value = MainScreenState(isPointsFetched = true)
+                        Log.d("POINTS", "points = ${result.data}")
                     }
                     is Result.Failure -> {
+                        // make reason more meaningful and display count error on the textfield
                         _state.value = MainScreenState(error = result.reason)
                     }
                 }
