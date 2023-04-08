@@ -22,7 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import r.prokhorov.interactivestandardtask.R
 import r.prokhorov.interactivestandardtask.presentation.ScreenRoute
-import r.prokhorov.interactivestandardtask.presentation.core.LightDarkPreviews
+import r.prokhorov.interactivestandardtask.presentation.core.PortraitPreview
 import r.prokhorov.interactivestandardtask.presentation.ui.theme.InteractiveStandardTaskTheme
 
 @Composable
@@ -32,27 +32,27 @@ fun StartScreen(
 ) {
 
     val state by startViewModel.state
-    val isFetched = startViewModel.isFetched.collectAsState(false)
+    val isFetched by startViewModel.isFetched.collectAsState(false)
     val input by startViewModel.inputState.collectAsState()
 
-    if (isFetched.value) {
+    if (isFetched) {
         LaunchedEffect(Unit) {
             navController.navigate(ScreenRoute.Chart.route)
         }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (state.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Center))
-        } else {
-            StartScreenLayout(
-                input = input,
-                isInputError = state.isInputError,
-                error = state.error,
-                onInputChanged = { startViewModel.updateCountInput(it) },
-                onButtonClicked = { startViewModel.fetchPoints() },
-                modifier = Modifier.align(Center)
-            )
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Center))
+            } else {
+                StartScreenLayout(
+                    input = input,
+                    isInputError = state.isInputError,
+                    error = state.error,
+                    onInputChanged = { startViewModel.updateCountInput(it) },
+                    onButtonClicked = { startViewModel.fetchPoints() },
+                    modifier = Modifier.align(Center)
+                )
+            }
         }
     }
 }
@@ -108,7 +108,7 @@ fun StartScreenLayout(
     }
 }
 
-@LightDarkPreviews
+@PortraitPreview
 @Composable
 fun StartScreenLayoutPreview() {
     InteractiveStandardTaskTheme {
