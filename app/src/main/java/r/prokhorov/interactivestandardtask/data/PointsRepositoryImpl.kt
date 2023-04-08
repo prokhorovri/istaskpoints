@@ -1,7 +1,6 @@
 package r.prokhorov.interactivestandardtask.data
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import r.prokhorov.interactivestandardtask.data.api.PointsApi
@@ -11,9 +10,9 @@ import r.prokhorov.interactivestandardtask.domain.common.Result
 import retrofit2.HttpException
 import java.io.IOException
 
-class PointsRepositoryImpl(val api: PointsApi) : PointsRepository {
+class PointsRepositoryImpl(private val api: PointsApi) : PointsRepository {
 
-    private var localStoragePoints = emptyList<Point>()
+    private var localStoragePoints = emptyList<Point>() // haha
 
     override fun fetchPoints(count: Int) = flow {
         try {
@@ -32,8 +31,17 @@ class PointsRepositoryImpl(val api: PointsApi) : PointsRepository {
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun getPoints(shouldSort: Boolean): Flow<Result<List<Point>>> {
-        TODO("Not yet implemented")
+    override fun getPoints(shouldSort: Boolean) = flow {
+        if (localStoragePoints.isNotEmpty()) {
+            val points = if (shouldSort) {
+                localStoragePoints.sortedBy(Point::x)
+            } else {
+                localStoragePoints
+            }
+            emit(Result.Success(points))
+        } else {
+            emit(Result.Failure("No data"))
+        }
     }
 
 }
