@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,26 +22,48 @@ import r.prokhorov.interactivestandardtask.presentation.ui.theme.InteractiveStan
 @Composable
 fun ChartScreen(viewModel: ChartViewModel = hiltViewModel()) {
     val state by viewModel.uiState
+    val isSmoothed by viewModel.isSmoothed.collectAsState()
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         when {
             state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             state.error.isNotBlank() -> Text(text = state.error, color = MaterialTheme.colors.error)
-            else -> ChartLayout(state.data, isLandscape = maxWidth > maxHeight)
+            else -> ChartLayout(
+                state.data,
+                isSmoothed = isSmoothed,
+                onModeClicked = { viewModel.switchSmoothMode() },
+                isLandscape = maxWidth > maxHeight
+            )
         }
     }
 }
 
 @Composable
-fun ChartLayout(points: List<Point>, isLandscape: Boolean = false) {
+fun ChartLayout(
+    points: List<Point>,
+    isSmoothed: Boolean = false,
+    onModeClicked: () -> Unit = {},
+    isLandscape: Boolean = false
+) {
+    // todo: refactor
     if (isLandscape) {
         Row(modifier = Modifier.fillMaxSize()) {
             PointsColumn(modifier = Modifier.weight(1f), points = points)
-            PointsChart(modifier = Modifier.weight(2f), points = points)
+            PointsChart(
+                modifier = Modifier.weight(2f),
+                points = points,
+                isSmoothed = isSmoothed,
+                onModeClicked = onModeClicked
+            )
         }
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
             PointsColumn(modifier = Modifier.weight(1f), points = points)
-            PointsChart(modifier = Modifier.weight(2f), points = points)
+            PointsChart(
+                modifier = Modifier.weight(2f),
+                points = points,
+                isSmoothed = isSmoothed,
+                onModeClicked = onModeClicked
+            )
         }
     }
 }
