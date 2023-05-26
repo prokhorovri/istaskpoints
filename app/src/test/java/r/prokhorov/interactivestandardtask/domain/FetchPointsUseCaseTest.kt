@@ -16,7 +16,7 @@ class FetchPointsUseCaseTest {
     @Before
     fun setUp() {
         fakePointsRepository = FakePointsRepository()
-        fetchPointsUseCase = FetchPointsUseCase(FakePointsRepository())
+        fetchPointsUseCase = FetchPointsUseCase(fakePointsRepository)
     }
 
     @Test
@@ -38,9 +38,9 @@ class FetchPointsUseCaseTest {
     }
 
     @Test
-    fun `Fetch points with unexpected server error`() = runBlocking {
+    fun `Fetch points with unexpected server error with valid count`() = runBlocking {
         fakePointsRepository.interruptUnexpectedly = true
-        val result = fetchPointsUseCase(1001).first()
+        val result = fetchPointsUseCase(500).first()
         assertThat(result).isInstanceOf(Result.Failure::class.java)
     }
 

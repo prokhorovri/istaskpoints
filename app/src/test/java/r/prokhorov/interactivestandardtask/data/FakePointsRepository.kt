@@ -70,6 +70,17 @@ class FakePointsRepository : PointsRepository {
     }
 
     override fun getPoints(shouldSort: Boolean): Flow<Result<List<Point>>> {
-        return flow { emit(Result.Success(points)) }
+        return flow {
+            if (points.isNotEmpty()) {
+                val points = if (shouldSort) {
+                    points.sortedBy(Point::x)
+                } else {
+                    points.shuffled()
+                }
+                emit(Result.Success(points))
+            } else {
+                emit(Result.Failure("No data"))
+            }
+        }
     }
 }
