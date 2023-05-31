@@ -11,6 +11,7 @@ import r.prokhorov.interactivestandardtask.data.api.PointsApi
 import r.prokhorov.interactivestandardtask.domain.PointsRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -32,6 +33,7 @@ class TestAppModule {
     }
 
     @Provides
+    @Singleton
     fun providePointsRepository(api: PointsApi): PointsRepository {
         return PointsRepositoryImpl(api)
     }
