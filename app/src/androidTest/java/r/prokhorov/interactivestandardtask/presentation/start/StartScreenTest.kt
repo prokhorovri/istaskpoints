@@ -1,17 +1,21 @@
 package r.prokhorov.interactivestandardtask.presentation.start
 
 import androidx.activity.compose.setContent
+import androidx.compose.material.Text
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.test.platform.app.InstrumentationRegistry
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okio.Buffer
+import okio.source
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,6 +54,9 @@ class StartScreenTest {
                     composable(route = ScreenRoute.Start.route) {
                         StartScreen(navController = navController)
                     }
+                    composable(route = ScreenRoute.Chart.route) {
+                        Text(text = "Chart")
+                    }
                 }
             }
         }
@@ -79,6 +86,28 @@ class StartScreenTest {
         composeRule.onNodeWithTag(TestTags.ERROR_TEXT)
             .assertIsDisplayed()
             .assertTextContains(errorMsg)
+
+    }
+
+    @Test
+    fun clickFetch_Success() {
+        val inputStream = InstrumentationRegistry.getInstrumentation().context.assets.open("points.json")
+        val buffer = Buffer().apply { writeAll(inputStream.source())  }
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody(buffer)
+        )
+        composeRule.onNodeWithTag(TestTags.PROGRESS).assertDoesNotExist()
+        composeRule.onNodeWithTag(TestTags.INPUT_FIELD).performTextInput("12")
+        composeRule.onNodeWithTag(TestTags.FETCH_BUTTON).performClick()
+
+        composeRule.waitUntilDoesNotExist(hasTestTag(TestTags.PROGRESS))
+
+        composeRule.onNodeWithTag(TestTags.ERROR_TEXT)
+            .assertDoesNotExist()
+
+        composeRule.onNodeWithText("Chart").assertIsDisplayed()
 
     }
 
