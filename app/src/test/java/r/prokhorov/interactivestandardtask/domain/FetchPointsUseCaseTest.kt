@@ -18,6 +18,8 @@ class FetchPointsUseCaseTest {
         fetchPointsUseCase = FetchPointsUseCase(fakePointsRepository)
     }
 
+    // replace with runTest
+
     @Test
     fun `Fetch points with valid count`() = runBlocking {
         val result = fetchPointsUseCase(500)
