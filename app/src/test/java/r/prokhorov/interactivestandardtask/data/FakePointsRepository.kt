@@ -18,6 +18,7 @@ class FakePointsRepository : PointsRepository {
     var interruptUnexpectedly = false
 
     override suspend fun fetchPoints(count: Int): Result<List<Point>> {
+        points = emptyList()
         return try {
             points = pupolatePoints(count)
             Result.Success(points)
@@ -46,7 +47,7 @@ class FakePointsRepository : PointsRepository {
         )
 
         val currentPoints = mutableListOf<Point>()
-        (0..count).forEach {
+        (1..count).forEach {
             yield()
 
             currentPoints.add(Point(nextFloat(), nextFloat()))

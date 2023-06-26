@@ -19,6 +19,7 @@ class PointsRepositoryImpl(
 
     // make this method suspend appropriately
     override suspend fun fetchPoints(count: Int): Result<List<Point>> {
+        localStoragePoints = emptyList()
         // move Result building to use-case
         return withContext(defaultDispatcher) {
             try {

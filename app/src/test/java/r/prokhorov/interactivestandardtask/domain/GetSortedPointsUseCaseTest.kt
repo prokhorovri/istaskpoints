@@ -29,4 +29,22 @@ class GetSortedPointsUseCaseTest {
             assertThat(points[i].x).isLessThan(points[i + 1].x)
         }
     }
+
+    @Test
+    fun `Get sorted points, correct size`() = runBlocking{
+        val response = getSortedPointsUseCase()
+
+        assertThat(response).isInstanceOf(Result.Success::class.java)
+
+        val points = (response as Result.Success<List<Point>>).data
+        assertThat(points.size).isEqualTo(10)
+    }
+
+    @Test
+    fun `Get sorted points, empty data`() = runBlocking{
+        fakePointsRepository.fetchPoints(0)
+        val response = getSortedPointsUseCase()
+
+        assertThat(response).isInstanceOf(Result.Failure::class.java)
+    }
 }
