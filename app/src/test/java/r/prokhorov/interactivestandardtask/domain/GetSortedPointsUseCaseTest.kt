@@ -1,7 +1,6 @@
 package r.prokhorov.interactivestandardtask.domain
 
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -16,12 +15,12 @@ class GetSortedPointsUseCaseTest {
     fun setUp() {
         fakePointsRepository = FakePointsRepository()
         getSortedPointsUseCase = GetSortedPointsUseCase(fakePointsRepository)
-        runBlocking { fakePointsRepository.fetchPoints(10).first() }
+        runBlocking { fakePointsRepository.fetchPoints(10) }
     }
 
     @Test
     fun `Get sorted points, correct order`() = runBlocking{
-        val response = getSortedPointsUseCase().first()
+        val response = getSortedPointsUseCase()
 
         assertThat(response).isInstanceOf(Result.Success::class.java)
 

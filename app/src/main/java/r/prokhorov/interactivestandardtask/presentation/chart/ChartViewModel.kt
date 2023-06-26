@@ -6,8 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import r.prokhorov.interactivestandardtask.domain.GetSortedPointsUseCase
 import r.prokhorov.interactivestandardtask.domain.Point
 import r.prokhorov.interactivestandardtask.domain.common.Result
@@ -27,7 +26,9 @@ class ChartViewModel @Inject constructor(
     val isSmoothed = savedStateHandle.getStateFlow(SMOOTH_STATE_KEY, false)
 
     init {
-        getSortedPointsUseCase().onEach(::updateState).launchIn(viewModelScope)
+        viewModelScope.launch {
+            updateState(getSortedPointsUseCase())
+        }
     }
 
     fun switchSmoothMode() {

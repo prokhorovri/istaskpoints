@@ -10,8 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import r.prokhorov.interactivestandardtask.domain.FetchPointsUseCase
 import r.prokhorov.interactivestandardtask.domain.common.Result
 import javax.inject.Inject
@@ -48,8 +47,8 @@ class StartViewModel @Inject constructor(
             val count = input.toIntOrNull() ?: 0
 
             _state.value = StartScreenState(isLoading = true)
-            fetchPointsUseCase(count).onEach { result ->
-                when (result) {
+            viewModelScope.launch {
+                when (val result = fetchPointsUseCase(count)) {
                     is Result.Success -> {
                         _state.value = StartScreenState()
                         _isFetched.emit(true)
@@ -60,7 +59,7 @@ class StartViewModel @Inject constructor(
                         _state.value = StartScreenState(error = result.reason)
                     }
                 }
-            }.launchIn(viewModelScope)
+            }
         }
     }
 

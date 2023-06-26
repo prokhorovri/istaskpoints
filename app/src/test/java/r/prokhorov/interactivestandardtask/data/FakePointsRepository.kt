@@ -1,7 +1,5 @@
 package r.prokhorov.interactivestandardtask.data
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.yield
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -19,16 +17,14 @@ class FakePointsRepository : PointsRepository {
 
     var interruptUnexpectedly = false
 
-    override fun fetchPoints(count: Int): Flow<Result<List<Point>>> {
-        return flow {
-            try {
-                points = pupolatePoints(count)
-                emit(Result.Success(points))
-            } catch (e: HttpException) {
-                val reason = e.response()?.errorBody()?.string()
-                    ?: "Http error code: ${e.code()}"
-                emit(Result.Failure(reason))
-            }
+    override suspend fun fetchPoints(count: Int): Result<List<Point>> {
+        return try {
+            points = pupolatePoints(count)
+            Result.Success(points)
+        } catch (e: HttpException) {
+            val reason = e.response()?.errorBody()?.string()
+                ?: "Http error code: ${e.code()}"
+            Result.Failure(reason)
         }
     }
 
@@ -69,18 +65,16 @@ class FakePointsRepository : PointsRepository {
         return currentPoints
     }
 
-    override fun getPoints(shouldSort: Boolean): Flow<Result<List<Point>>> {
-        return flow {
-            if (points.isNotEmpty()) {
-                val points = if (shouldSort) {
-                    points.sortedBy(Point::x)
-                } else {
-                    points.shuffled()
-                }
-                emit(Result.Success(points))
+    override suspend fun getPoints(shouldSort: Boolean): Result<List<Point>> {
+        return if (points.isNotEmpty()) {
+            val points = if (shouldSort) {
+                points.sortedBy(Point::x)
             } else {
-                emit(Result.Failure("No data"))
+                points.shuffled()
             }
+            Result.Success(points)
+        } else {
+            Result.Failure("No data")
         }
     }
 }
