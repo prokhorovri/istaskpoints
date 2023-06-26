@@ -1,8 +1,5 @@
 package r.prokhorov.interactivestandardtask.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import r.prokhorov.interactivestandardtask.data.api.PointsApi
 import r.prokhorov.interactivestandardtask.domain.Point
 import r.prokhorov.interactivestandardtask.domain.PointsRepository
@@ -14,34 +11,30 @@ class PointsRepositoryImpl(private val api: PointsApi) : PointsRepository {
 
     private var localStoragePoints = emptyList<Point>() // haha
 
-    override fun fetchPoints(count: Int) = flow {
-        try {
-            // the Retrofit method itself already executes in the IO context
-            val response = api.getPoints(count)
+    // make this method suspend apropriately
+    override suspend fun fetchPoints(count: Int): Result<List<Point>> = try {
+        // the Retrofit method itself already executes in the IO context
+        val response = api.getPoints(count)
+        localStoragePoints = response.points.map { Point(x = it.x, y = it.y) }
+        Result.Success(localStoragePoints)
+    } catch (e: HttpException) {
+        val reason = e.response()?.errorBody()?.string() ?: "Http error code: ${e.code()}"
+        Result.Failure(reason)
+    } catch (e: IOException) {
+        Result.Failure("Connection problem")
+    }
 
-            // instead of onEach savecashe
-            localStoragePoints = response.points.map { Point(x = it.x, y = it.y) }
-
-            emit(Result.Success(localStoragePoints))
-        } catch (e: HttpException) {
-            val reason = e.response()?.errorBody()?.string() ?: "Http error code: ${e.code()}"
-            emit(Result.Failure(reason))
-        } catch (e: IOException) {
-            emit(Result.Failure("Connection problem"))
+    override suspend fun getPoints(shouldSort: Boolean): Result<List<Point>> {
+        if (localStoragePoints.isEmpty()) {
+            return Result.Failure("No data")
         }
-    }.flowOn(Dispatchers.IO)
 
-    override fun getPoints(shouldSort: Boolean) = flow {
-        if (localStoragePoints.isNotEmpty()) {
-            val points = if (shouldSort) {
-                localStoragePoints.sortedBy(Point::x)
-            } else {
-                localStoragePoints
-            }
-            emit(Result.Success(points))
+        val points = if (shouldSort) {
+            localStoragePoints.sortedBy(Point::x)
         } else {
-            emit(Result.Failure("No data"))
+            localStoragePoints
         }
+        return Result.Success(points)
     }
 
 }
