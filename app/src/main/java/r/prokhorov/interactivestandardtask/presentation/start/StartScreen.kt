@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,6 +24,7 @@ import androidx.navigation.NavController
 import r.prokhorov.interactivestandardtask.R
 import r.prokhorov.interactivestandardtask.presentation.ScreenRoute
 import r.prokhorov.interactivestandardtask.presentation.core.PortraitPreview
+import r.prokhorov.interactivestandardtask.presentation.core.util.TestTags
 import r.prokhorov.interactivestandardtask.presentation.ui.theme.InteractiveStandardTaskTheme
 
 @Composable
@@ -42,7 +44,11 @@ fun StartScreen(
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Center))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Center)
+                        .testTag(TestTags.PROGRESS)
+                )
             } else {
                 StartScreenLayout(
                     input = input,
@@ -87,7 +93,9 @@ fun StartScreenLayout(
                 onGo = { onButtonClicked() }
             ),
             isError = isInputError,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(TestTags.INPUT_FIELD),
             visualTransformation = VisualTransformation.None
         )
 
@@ -96,13 +104,14 @@ fun StartScreenLayout(
             Spacer(modifier = Modifier.size(24.dp))
             Text(
                 text = error,
-                color = MaterialTheme.colors.error
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.testTag(TestTags.ERROR_TEXT)
             )
         }
 
         Spacer(modifier = Modifier.size(32.dp))
 
-        Button(onClick = onButtonClicked) {
+        Button(onClick = onButtonClicked, modifier = Modifier.testTag(TestTags.FETCH_BUTTON)) {
             Text(text = stringResource(id = R.string.fetch_button))
         }
     }

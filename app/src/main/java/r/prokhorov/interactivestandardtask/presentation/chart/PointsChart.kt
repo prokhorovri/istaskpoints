@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -22,6 +23,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import r.prokhorov.interactivestandardtask.R
 import r.prokhorov.interactivestandardtask.domain.Point
 import r.prokhorov.interactivestandardtask.presentation.core.LandscapePreview
+import r.prokhorov.interactivestandardtask.presentation.core.util.TestTags
 import r.prokhorov.interactivestandardtask.presentation.ui.theme.InteractiveStandardTaskTheme
 
 @Composable
@@ -73,7 +75,7 @@ fun PointsChart(
                 chart.data = LineData(dataSet)
                 chart.invalidate()
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().testTag(TestTags.CHART)
         )
 
         Column(
@@ -87,7 +89,10 @@ fun PointsChart(
                     .size(56.dp)
                     .clip(CircleShape)
             ) {
-                IconButton(onClick = onModeClicked) {
+                IconButton(
+                    onClick = onModeClicked,
+                    modifier = Modifier.testTag(TestTags.LINE_MODE_BUTTON)
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_change_mode),
                         contentDescription = "Change mode"
